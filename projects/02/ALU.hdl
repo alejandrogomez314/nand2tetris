@@ -44,19 +44,23 @@ CHIP ALU {
     PARTS:
    // Put you code here:
    // Helper gates
-   Not16(in=x,out=notX);
-   Not16(in=y,out=notY);
+   Not16(in=zxOut,out=notX);
+   Not16(in=zyOut,out=notY);
    Not16(in=fOut,out=notFOut);
 
    Mux16(a=x,b=false,sel=zx,out=zxOut);
    Mux16(a=zxOut,b=notX,sel=nx,out=nxOut);
-   Mux16(a=y,b=false,sel=zyOut);
+   Mux16(a=y,b=false,sel=zy,out=zyOut);
    Mux16(a=zyOut,b=notY,sel=ny,out=nyOut);
 
-   Add16(a=nxOut,b=nyOut,sum=adderOut,carry=ng);
+   Add16(a=nxOut,b=nyOut,out=adderOut);
    And16(a=nxOut,b=nyOut,out=bitwiseAnd);
-   Mux16(a=adderOut,b=bitwiseAnd,sel=f,out=fOut);
+   Mux16(a=bitwiseAnd,b=adderOut,sel=f,out=fOut);
 
-   Mux16(a=fOut,b=notFOut,out=out);
-   Mux16(a=true,b=false,sel=out,out[0]=zr);
+   Mux16(a=fOut,b=notFOut,sel=no,out=out, out[0..7]=out0to7,out[8..15]=out8to15,out[15]=ng);
+
+   Or8Way(in=out0to7,out=or0to7);
+   Or8Way(in=out8to15,out=or8to15);
+   Or(a=or0to7,b=or8to15,out=or0to16);
+   Not(in=or0to16,out=zr);
 }
