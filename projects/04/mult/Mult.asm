@@ -10,3 +10,40 @@
 // R0 >= 0, R1 >= 0, and R0*R1 < 32768.
 
 // Put your code here.
+// sum=0,i=R1
+// let sum = sum + R0. Repeat i times.
+// If R1 or R0 is zero, R2 is zero.
+
+@R1
+D=M
+@i
+M=D
+@sum
+M=0
+
+(LOOP)
+@i
+D=M
+@STOP
+D;JEQ // if i == 0 goto END
+
+@R0
+D=M
+@sum
+M=D+M // sum = sum + R0
+
+@i
+D=M
+M=D-1 // i = i - 1
+@LOOP
+0;JMP
+
+(STOP)
+@sum
+D=M
+@R2
+M=D
+
+(END)
+@END
+0;JMP
