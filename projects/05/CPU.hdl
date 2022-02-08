@@ -40,4 +40,57 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+    
+    // instruction handling
+      Not(in=instruction[15],out=opcode);
+      Mux16(a=aluOut,b=instruction,sel=opcode,out=instructionOut);
+      Or(a=opcode,b=instruction[5],out=loadA);
+      Register(in=instructionOut,load=instruction[5],out=aRegisterOut,out=addressM);
+    
+    // ALU
+      And(a=instruction[15],b=instruction[4],out=loadD);
+      Register(in=aluOut,load=loadD,out=dRegisterOut);
+      And(a=instruction[15],b=instruction[12],out=AMSwitch);
+      Mux16(a=aRegisterOut,b=inM,sel=AMSwitch,out=instrOrMemOut);
+      ALU(x=dRegisterOut,y=instrOrMemOut,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],out=outM,out=aluOut,zr=zrOut,ng=ngOut);
+      And(a=instruction[3],b=instruction[3],out=writeM);
+
+    // Control
+    PC(in=aRegisterOut,reset=reset,inc=,load=,out=pc);
+    
+      Not(in=instruction[2],out=notJ1);
+      Not(in=instruction[1],out=notJ2);
+      Not(in=instruction[0],out=notJ3);
+      
+      Not(in=zrOut,out=notZrOut);
+      Not(in=ngOut,out=notNgOut);
+
+      And(a=zrOut,b=notNgOut,out=zero);   // out = 0
+      And(a=notZrOut,b=notNgOut,out=pos); // out > 0 or out >= 0 or out != 0
+      And(a=notZrOut,b=ngOut,out=neg);    // out < 0 or out <= 0
+
+      // null
+      And3(a=notJ1,b=notJ2,c=notJ3,out=noJmp);
+      // JMP
+      And3(a=instruction[2],b=instruction[1],c=instruction[0],out=jmp);
+      // JGT
+      And3(a=notJ1,b=notJ2,instruction[2],out=jgt);
+      And(a=jgt,b=pos,out=load1);
+      // JEQ
+      And3(a=notJ1,b=instruction[1],c=notJ3,out=jeq);
+      And(a=jeq,b=zero,out=load2);
+      // JGE
+      And3(a=notJ1,b=instruction[1],c=instruction[0],out=jge);
+      And(a=jge,b=pos,out=load3);
+      // JLT
+      And3(a=instruction[2],b=notJ2,c=notJ3,out=jlt);
+      And(a=jlt,b=neg,out=load3);
+      // JNE
+      And3(a=instruction[2],b=notJ2,c=instruction[0],out=notZero);
+      
+      // JLE
+      And3()
+
+      //JMP
+
 }
