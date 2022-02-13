@@ -1,0 +1,7 @@
+Create a parser that convers hack assembly language into machine code. Some things that will be needed include:
+* A fn to read a file in, then read each line until EOF.
+* Tokenizer to split characters by a character delimeter
+* Table that contains variables and the registers they represent
+* Table of symbols that the language contains and their respective register places
+* A table that keeps track of labels
+* Various fn handlers for errors in unsupported symbols, grammar, and sys calls
