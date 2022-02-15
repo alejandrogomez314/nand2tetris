@@ -1,8 +1,13 @@
 Create a parser that convers hack assembly language into machine code. Some things that will be needed include:
 * A fn to read a file in, then read each line until EOF.
 * Tokenizer to split characters by a character delimeter
-* Table that contains variables and the registers they represent
-* Table of symbols that the language contains and their respective register places
-* A table that keeps track of labels
+* A table that keeps track of labels: make a first scan of the table, filling in on the symbol table with label declarations. Store line number, not address. The second scan will fill variables and tokenize. When a label variable is encountered, replace
 * Various fn handlers for errors in unsupported symbols, grammar, and sys calls
-* Table for opcodes and the binaru instructions they represent
+[x] Table for opcodes and the binaru instructions they represent
+
+
+first pass
+Extract all label declarations. 
+
+Second pass
+Extract all variable symbols. If variable declaration is found and it is not on symbol table, we know that it is a variable 
