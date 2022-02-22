@@ -185,6 +185,14 @@ char *first_pass(FILE *fp) {
   if (!buffer) exit(1);
 
   while ((c = fgetc(fp)) && (c != EOF)) {
+    if (c == '/' && (c == fgetc(fp))) {
+      while ((c = fgetc(fp)) != '\n')
+        ;
+    }
+    printf("%c", c);
+    //if (c == '\n') {
+    //  continue;
+    //}
     //if (isWhitespace(c) || isBlankLine(c, fp) || isComment(c, fp))
     //  continue;
     
@@ -224,12 +232,11 @@ void runFile(char *filename) {
   // First run: remove comments, white spaces and extra break lines, add labels to symbols table with 
   // their corresponding line number;
   char *first = first_pass(fp);
-  printf("%s\n", first); 
   // parse file and write out binary output file
   //char** second_pass = parse(first_pass, variables);
   // free(cleaned_input)
   // free(cleaned_input)
-  
+  free(first); 
   freeList(&symbol_table);
   fclose(fp);
 }
