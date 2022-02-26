@@ -134,7 +134,12 @@ struct keytab comp1[] = {
 #define C_EQUALS =
 #define PARENS (
 
-void extract_labels();
+void extract_labels(char *program, struct List *symbol_table) {
+  // loop over program. Put if there is a label, put it 
+  // on the symbol table with the label as key and its line number
+  // as the value
+  //
+}
 
 void populate_symbol_table(struct List *symbol_table) {
   initList(&(*symbol_table), 16);
@@ -163,64 +168,51 @@ void populate_symbol_table(struct List *symbol_table) {
   insert(&(*symbol_table), "THAT", 4); 
 }
 
-int isWhitespace(char c) {
-  return c == ' ';
-}
 
-int isBlankLine(char c, FILE *fp) {
-  return c == '\n' && c == fgetc(fp);
-}
-
-int isComment(char c, FILE *fp) {
-  return c == '/' && c == fgetc(fp);
-}
-
-char *first_pass(FILE *fp) {
-  int chunk = 4096;
-  int counter = 0;
-  char *buffer = malloc(chunk);
-  char *test;
-  int c;
+char *process_buffer(char *buffer, int buffer_len) {
+  int fast = 0, slow = 0;
+  char *processed_file = malloc(sizeof(char)*buffer_len);
   
-  if (!buffer) exit(1);
-
-  while ((c = fgetc(fp)) && (c != EOF)) {
-    if (c == '/' && (c == fgetc(fp))) {
-      while ((c = fgetc(fp)) != '\n')
-        ;
-    }
-    printf("%c", c);
-    //if (c == '\n') {
-    //  continue;
-    //}
-    //if (isWhitespace(c) || isBlankLine(c, fp) || isComment(c, fp))
-    //  continue;
-    
-    buffer[counter++] = c;
-   
-    if (counter == chunk) {
-      chunk *= 2;
-      test = realloc(buffer, chunk);
-      if (!test) {
-        free(buffer);
-        exit(1);
-      } else {
-        buffer = test;
-      }
+  // remove comments
+  while (buffer[fast] !='\0') {
+    if (buffer[fast] == '/') {
+      while (buffer[fast] != '\n')
+        fast++;
+    } else if (buffer[fast] == '\r') {
+        fast++;
+    } else {
+      processed_file[slow++] = buffer[fast++]; 
     }
   }
+ 
+  // Find line where commands begin
+  slow = fast = 0;
+  while (processed_file[fast] == '\n' && processed_file[fast+1] == '\n')
+    fast++;
+  fast++;  
+ 
+  // remove empty blanks
+  while (processed_file[fast] != '\0') 
+    processed_file[slow++] = processed_file[fast++];
 
-  buffer[counter] = '\0';
-  if (realloc(buffer, counter + 1) == NULL) {
-    exit(1);
-  }
-  return buffer;
+  // terminated buffer after new length
+  processed_file[slow+1] = '\0';
+ 
+  // reallocate buffer to be new length
+  processed_file = realloc(processed_file,sizeof(char)*(slow+1));  
+
+  return processed_file;
 }
+
+//void parse(char *program, struct keytab
 
 void runFile(char *filename) {
   FILE *fp = NULL;
+  char *buffer = NULL;
   struct List symbol_table;
-  
+  size_t len;
+  int buffer_len;
+
   if ((fp = fopen(filename, "r")) == NULL) {
     fprintf(stderr, "Could not open file.\n");
     exit(1);
@@ -229,14 +221,24 @@ void runFile(char *filename) {
   // populate symbol table with pre-defined symbols
   populate_symbol_table(&symbol_table);
 
-  // First run: remove comments, white spaces and extra break lines, add labels to symbols table with 
-  // their corresponding line number;
-  char *first = first_pass(fp);
+  // Put file contents in a buffer for processing
+  if ((buffer_len = getdelim( &buffer, &len, '\0', fp)) == -1) {
+    fprintf(stderr, "Error: could not read file into buffer\n");
+    exit(1);
+  }
+
+  // remove comments and empty break lines
+  char *processed_file = process_buffer(buffer, buffer_len);
+ 
+  printf("%s", processed_file);
+  // extract labels and put in variables  
+  extract_labels(processed_file, &symbol_table);
+  
   // parse file and write out binary output file
-  //char** second_pass = parse(first_pass, variables);
+  //parse(processed_file, variables);
   // free(cleaned_input)
-  // free(cleaned_input)
-  free(first); 
+  free(processed_file);
+  free(buffer); 
   freeList(&symbol_table);
   fclose(fp);
 }
