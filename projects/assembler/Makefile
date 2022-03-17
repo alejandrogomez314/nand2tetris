@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Werror
-SOURCES=main.c assembler.c symbolTable.c
+SOURCES=main.c assembler.c symbolTable.c parser.c
 EXECUTABLE=hackasm
 
 all: $(EXECUTABLE)

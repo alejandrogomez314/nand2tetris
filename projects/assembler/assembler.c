@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+
 #include "symbolTable.h"
 #include "assembler.h"
 #include "parser.h"
@@ -29,11 +30,11 @@ bool assemble(char *filename) {
   // remove comments and empty break lines
   char *processed_file = process_buffer(buffer, buffer_len);
   
-  // extract labels and put in variables
+  // extract labels
   extract_labels(processed_file, &symbol_table);
- 
+
   // parse file and write out binary output file
-  parse(processed_file, symbol_table);
+  parse(processed_file, &symbol_table);
 
   free(processed_file);
   free(buffer);
@@ -101,7 +102,6 @@ void extract_labels(char *program, struct keytab_list *symbol_table) {
       }
 
       memcpy(label, (program+i), (j-i));
-      printf("%s\n", label);
       insert(symbol_table, label, lineCount); 
     }
     if (program[i] == '\n') lineCount++;

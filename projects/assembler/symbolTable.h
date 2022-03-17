@@ -1,3 +1,6 @@
+#ifndef SYMBOLTABLE_H
+#define SYMBOLTABLE_H
+
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -18,3 +21,5 @@ bool insert(struct keytab_list *, char *, int);
 void freeList(struct keytab_list *);
 void pre_populate_symbol_table(struct keytab_list *);
 bool addVariable(struct keytab_list *, char *);
+
+#endif
